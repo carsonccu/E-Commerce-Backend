@@ -2,43 +2,45 @@ const router = require('express').Router();
 const { Category, Product } = require('../../models');
 
 router.get('/', async (req, res) => {
-  try {
-    const categoryData = await Category.findAll({ include: [{ model: Product }] });;
 
-    res.status(200).json(categoryData);
+  try {
+    const category = await Category.findAll({ include: [{ model: Product }] });
+    res.json(category);
   } catch (err) {
-    res.status(500).json(err);
+    console.log("Error");
+    if (err) throw new Error(err);
   }
-  // find all categories
-  // be sure to include its associated Products
 });
 
 router.get('/:id', async (req, res) => {
   try {
-    const category = await Category.findAll({
-      where: {
-        id: req.params.id,
-      },
-      include: [{ model: Product }]
-    });
+    const category = await Category.findByPk(req.params.id, { include: [{ model: Product }] });
 
-    res.status(200).json(category);
+
+    if (!category) {
+      res.status(404).json({ message: 'No category found)' });
+      return;
+    }
+
+    res.json(category);
+
   } catch (err) {
-    res.status(500).json(err);
+    console.log("Error");
+    if (err) throw new Error(err);
   }
-
 });
 
-router.post('/', async (req, res) => {
-  // create a new category
-  try {
-    const category = await Category.create(req.body)
-
-    res.status(200).json(category);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-
+router.post('/', (req, res) => {
+  // // create a new category
+  Category.create({
+    category_name: req.body.category_name
+  })
+    .then((netCategory) => {
+      res.json(netCategory);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 });
 
 router.put('/:id', async (req, res) => {
@@ -49,15 +51,14 @@ router.put('/:id', async (req, res) => {
         id: req.params.id,
       },
     })
-    res.status(200).json(category);
+    res.json(category)
   } catch (err) {
-    res.status(500).json(err);
+    console.log("Error");
+    if (err) throw new Error(err);
   }
-
 });
 
 router.delete('/:id', async (req, res) => {
-  // delete a category by its `id` value
   try {
     const category = await Category.destroy({
       where: {
@@ -66,7 +67,7 @@ router.delete('/:id', async (req, res) => {
     });
 
     if (!category) {
-      res.status(404).json({ message: 'No category with this ID was found...' });
+      res.status(404).json({ message: 'No category found' });
       return;
     }
 
