@@ -35,13 +35,47 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
   // create a new tag
+  try {
+    const tag = await Tag.create(req.body.category_name)
+
+    res.status(200).json(tag);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 router.put('/:id', (req, res) => {
   // update a tag's name by its `id` value
+  try {
+    const tag = await Tag.update(req.body, {
+      where: {
+        id: req.params.id,
+      },
+    })
+
+    res.status(200).json(tag);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 router.delete('/:id', (req, res) => {
+  try {
+    const tag = await Tag.destroy({
+      where: {
+        id: req.params.id
+      }
+    });
+
+    if (!tag) {
+      res.status(404).json({ message: 'No Tag with this ID, please try enter a valid ID' });
+      return;
+    }
+
+    res.status(200).json(tag);
+  } catch (err) {
+    res.status(500).json(err);
+  }
   // delete on tag by its `id` value
 });
 
