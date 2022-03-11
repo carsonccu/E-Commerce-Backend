@@ -4,39 +4,26 @@ const Category = require('./Category');
 const Tag = require('./Tag');
 const ProductTag = require('./ProductTag');
 
-// Products belongsTo Category
+// https://sequelize.org/master/manual/assocs.html
 
-// Categories have many Products
-
-// Products belongToMany Tags (through ProductTag)
-
-// Tags belongToMany Products (through ProductTag)
-
+// Products belongsTo Category -- Product is the source model & Category is the target model.  Belongs to: P defines the foreign key
 Product.belongsTo(Category, {
-  foreignKey: "category_id",
-
-});
-
-Category.hasMany(Product, {
   foreignKey: "category_id",
   onDelete: "CASCADE"
 });
 
-Product.belongsToMany(Tag,
-  {
-    through: {
-      model: ProductTag,
-      unique: false
-    },
-    as: 'product_to_tag',
-  })
+// Categories have many Products  Has Many: Product holds foreign key
+Category.hasMany(Product, {
+  foreignKey: "category_id",
+});
+// Products belongToMany Tags (through ProductTag). BelongsToMany: I think foreign keys go on Product and Tag (A/B)
+Product.belongsToMany(Tag, { through: ProductTag }, {
+  foreignKey: "product_id",
+});
 
-Tag.belongsToMany(Product, {
-  through: {
-    model: ProductTag,
-    unique: false
-  },
-  as: 'tag_to_product',
+// Tags belongToMany Products (through ProductTag)
+Tag.belongsToMany(Product, { through: ProductTag }, {
+  foreignKey: "tag_id",
 });
 module.exports = {
   Product,
